@@ -1,5 +1,8 @@
 ﻿namespace MoviesMauiApp
 {
+    /// <summary>
+    /// The main page of the application, displaying the movie explorer interface.
+    /// </summary>
     public partial class MainPage : ContentPage
     {
         int count = 0;
@@ -9,7 +12,12 @@
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        /// <summary>
+        /// Handles the click event for the counter button (default MAUI template code).
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnCounterClicked(object? sender, EventArgs e)
         {
             count++;
 
@@ -21,5 +29,4 @@
             SemanticScreenReader.Announce(CounterBtn.Text);
         }
     }
-
 }

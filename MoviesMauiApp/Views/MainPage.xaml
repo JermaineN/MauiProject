@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MoviesMauiApp.ViewModels"
+             xmlns:model="clr-namespace:MoviesMauiApp.Models"
+             x:Class="MoviesMauiApp.Views.MainPage"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- Search & Filter Area -->
+        <VerticalStackLayout Grid.Row="0" Padding="10" Spacing="10" BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#1E1E1E}">
+            <SearchBar Placeholder="Search movies..."
+                       Text="{Binding SearchText}"
+                       SearchCommand="{Binding FilterMoviesCommand}"/>
+            
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Genres}" Spacing="5">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Button Text="{Binding .}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SelectedGenreChangedCommand}" 
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="40"
+                                    Padding="15,0">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SelectedGenre}" Value="{Binding .}">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                                <!-- Note: Simple selection logic might need refinement for radio-button behavior, 
+                                     or we just trust the SelectedGenre binding interaction. 
+                                     The button command here doesn't directly set SelectedGenre unless we wire it. 
+                                     Let's simpler use a Picker for Genre if horizontal list is tricky to bind 'Selected' to.
+                                     Or just bind command to set property. -->
+                            </Button>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
+            
+            <Picker Title="Filter by Genre"
+                    ItemsSource="{Binding Genres}"
+                    SelectedItem="{Binding SelectedGenre}"
+                    TitleColor="{AppThemeBinding Light=Black, Dark=White}"/>
+
+            <Picker Title="Filter by Director"
+                    ItemsSource="{Binding Directors}"
+                    SelectedItem="{Binding SelectedDirector}"
+                    TitleColor="{AppThemeBinding Light=Black, Dark=White}"/>
+        </VerticalStackLayout>
+
+        <!-- Movie List -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Movies}" SelectionMode="Single"
+                        SelectionChangedCommand="{Binding GoToDetailsCommand}"
+                        SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:Movie">
+                    <Border Margin="10,5" Padding="0" StrokeShape="RoundRectangle 10" StrokeThickness="1">
+                        <Border.Stroke>
+                            <AppThemeBinding Light="{StaticResource Gray200}" Dark="{StaticResource Gray600}"/>
+                        </Border.Stroke>
+                        <Border.BackgroundColor>
+                            <AppThemeBinding Light="{StaticResource White}" Dark="#333333"/>
+                        </Border.BackgroundColor>
+                        
+                        <Grid ColumnDefinitions="80, *" HeightRequest="100">
+                            <!-- Emoji Icon -->
+                            <Label Text="{Binding Emoji}" 
+                                   Grid.Column="0"
+                                   FontSize="40"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Center"
+                                   BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}"/>
+                            
+                            <!-- Info -->
+                            <VerticalStackLayout Grid.Column="1" Padding="10" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" LineBreakMode="TailTruncation"
+                                       TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"/>
+                                <HorizontalStackLayout Spacing="5">
+                                    <Label Text="{Binding Year}" FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                                    <Label Text="|" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"/>
+                                    <Label Text="{Binding GenreString}" FontSize="12" FontAttributes="Italic" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            
+                            <!-- Arrow -->
+                            <Label Grid.Column="1" Text="›" FontSize="24" HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,15,0"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" 
+                           HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource Primary}"/>
+    </Grid>
+
+</ContentPage>
